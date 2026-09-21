@@ -1,0 +1,211 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+  background-color: #f7f9fa;
+  min-height: 100vh;
+}
+
+.landing-container {
+  padding: 40px;
+}
+
+/* 右下角懸浮按鈕 */
+.chat-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #d81e06; /* 類似 momo 紅，或可更換為大同校徽主題色 */
+  color: #fff;
+  font-size: 26px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease;
+  z-index: 999;
+}
+
+.chat-toggle:hover {
+  transform: scale(1.08);
+}
+
+/* 對話外框 */
+.chat-window {
+  position: fixed;
+  bottom: 96px;
+  right: 24px;
+  width: 380px;
+  height: 560px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1000;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.chat-window.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+}
+
+/* 頂部 Header */
+.chat-header {
+  background: #d81e06;
+  color: #ffffff;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-avatar {
+  font-size: 24px;
+}
+
+.chat-status-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.chat-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.chat-status {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.chat-close {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* 訊息區域 */
+.chat-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #f4f6f8;
+}
+
+.message-bubble {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.message-bubble.bot {
+  align-self: flex-start;
+  background: #ffffff;
+  color: #333;
+  border: 1px solid #e1e4e8;
+  border-bottom-left-radius: 2px;
+}
+
+.message-bubble.user {
+  align-self: flex-end;
+  background: #d81e06;
+  color: #ffffff;
+  border-bottom-right-radius: 2px;
+}
+
+/* 快捷按鈕列 (PChome / momo 常用) */
+.quick-pills-bar {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #fff;
+  border-top: 1px solid #eaeaea;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.quick-pill {
+  border: 1px solid #d81e06;
+  color: #d81e06;
+  background: #fff;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-pill:hover {
+  background: #d81e06;
+  color: #fff;
+}
+
+/* 底部輸入列 */
+.chat-input-container {
+  display: flex;
+  padding: 10px 12px;
+  background: #ffffff;
+  border-top: 1px solid #ececec;
+  gap: 8px;
+}
+
+.chat-input-container input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  outline: none;
+  font-size: 14px;
+}
+
+.chat-input-container input:focus {
+  border-color: #d81e06;
+}
+
+.send-btn {
+  background: #d81e06;
+  color: #fff;
+  border: none;
+  padding: 0 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+/* 打字機閃爍游標 */
+.typing-cursor {
+  display: inline-block;
+  color: #d81e06;
+  font-weight: bold;
+  animation: blink 0.7s infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* 當按鈕被鎖定時的禁用樣式 */
+.send-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
