@@ -4,9 +4,248 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>大同大學校園智能助理</title>
-  <link rel="stylesheet" href="css/chatbox.css">
+  <style>
+    /* 全域基礎設定 */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f8f9fa;
+      color: #333;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* 背景入口頁面 */
+    .landing-container {
+      padding: 40px 30px;
+    }
+
+    .landing-container h1 {
+      font-size: 28px;
+      margin-bottom: 12px;
+      color: #111;
+    }
+
+    .landing-container p {
+      font-size: 16px;
+      color: #666;
+    }
+
+    /* 右下角懸浮按鈕 (FAB) */
+    .chat-toggle {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #c5221f;
+      color: #ffffff;
+      border: none;
+      font-size: 26px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(197, 34, 31, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, background-color 0.2s;
+      z-index: 999;
+    }
+
+    .chat-toggle:hover {
+      transform: scale(1.08);
+      background: #a81c19;
+    }
+
+    /* 對話彈窗主體 */
+    .chat-window {
+      position: fixed;
+      right: 24px;
+      bottom: 96px;
+      width: 380px;
+      max-width: calc(100vw - 32px);
+      height: 580px;
+      max-height: calc(100vh - 120px);
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1000;
+      transition: opacity 0.25s, transform 0.25s;
+    }
+
+    .chat-window.hidden {
+      display: none !important;
+    }
+
+    /* 頂部 Header */
+    .chat-header {
+      background: #c5221f;
+      color: #ffffff;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-avatar {
+      font-size: 24px;
+      background: rgba(255, 255, 255, 0.2);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chat-status-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-title {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .chat-status {
+      font-size: 12px;
+      opacity: 0.85;
+    }
+
+    .chat-close {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+    }
+
+    /* 訊息對話滾動區 */
+    .chat-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #fdfdfd;
+    }
+
+    .message-bubble {
+      max-width: 85%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      word-break: break-word;
+      white-space: pre-line;
+    }
+
+    .message-bubble.bot {
+      background: #f1f3f4;
+      color: #202124;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message-bubble.user {
+      background: #c5221f;
+      color: #ffffff;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    /* 快捷問題標籤列 */
+    .quick-pills-bar {
+      padding: 8px 12px;
+      background: #fff;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      white-space: nowrap;
+      border-top: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+    }
+
+    .quick-pills-bar::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .quick-pills-bar::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+    }
+
+    .quick-pill {
+      background: #ffffff;
+      border: 1px solid #c5221f;
+      color: #c5221f;
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .quick-pill:hover {
+      background: #c5221f;
+      color: #ffffff;
+    }
+
+    /* 底部輸入列 */
+    .chat-input-container {
+      padding: 12px;
+      background: #ffffff;
+      display: flex;
+      gap: 8px;
+    }
+
+    .chat-input-container input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .chat-input-container input:focus {
+      border-color: #c5221f;
+    }
+
+    .send-btn {
+      background: #c5221f;
+      color: #fff;
+      border: none;
+      padding: 0 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .send-btn:hover {
+      background: #a81c19;
+    }
+  </style>
 </head>
 <body>
+
   <!-- 頁面背景模擬校園入口 -->
   <main class="landing-container">
     <h1>大同大學校園資訊入口</h1>
@@ -20,7 +259,7 @@
 
   <!-- 客服對話彈窗 -->
   <aside id="chat-window" class="chat-window hidden">
-    <!-- 標題欄 (似 momo/PChome 客服頭像與在線狀態) -->
+    <!-- 標題欄 -->
     <header class="chat-header">
       <div class="chat-avatar">🎓</div>
       <div class="chat-status-info">
@@ -32,9 +271,7 @@
 
     <!-- 訊息對話滾動區 -->
     <section id="chat-messages" class="chat-messages">
-      <div class="message-bubble bot">
-        同學你好！我是大同校園智能客服。請點選下方常見問題，或直接在下方輸入你的問題喔！
-      </div>
+      <div class="message-bubble bot">同學你好！我是大同校園智能客服。請點選下方常見問題，或直接在下方輸入你的問題喔！</div>
     </section>
 
     <!-- 快捷標籤列 (常見問題模組) -->
@@ -47,8 +284,99 @@
     </footer>
   </aside>
 
-  <!-- 邏輯腳本切分 -->
-  <script src="js/quick_actions.js"></script>
-  <script src="js/chat.js"></script>
+  <script>
+    // 常見問題資料庫與回覆
+    const quickActions = [
+      {
+        icon: "📅",
+        label: "選課時程",
+        response: "【選課時程說明】\n1. 初選通常於開學前兩週開始。\n2. 加退選則於開學第一週至第二週開放線上申請。\n詳細梯次請參閱大同大學教務處官網之選課行事曆！"
+      },
+      {
+        icon: "💳",
+        label: "註冊與繳費",
+        response: "【註冊與學雜費繳費】\n1. 繳費單可至「大同大學學生資訊系統」或土地銀行代收學雜費網站下載。\n2. 繳費管道：ATM轉帳、信用卡線上刷卡或超商繳費。\n若有金額疑問可洽總務處出納組。"
+      },
+      {
+        icon: "📖",
+        label: "圖書館借閱",
+        response: "【圖書館借閱規則】\n大學部學生憑學生證可借 20 冊，借期 30 天；若無人預約可於線上辦理續借。\n開館時間：週一至週五 08:20 - 21:30。"
+      },
+      {
+        icon: "🚎",
+        label: "校園交通",
+        response: "【校園交通資訊】\n捷運：搭乘淡水信義線至「民權西路站」或「圓山站」，步行約 8-10 分鐘即可抵達校門口。"
+      }
+    ];
+
+    // DOM 元素選取
+    const toggleBtn = document.getElementById('chat-toggle-btn');
+    const closeBtn = document.getElementById('chat-close-btn');
+    const chatWindow = document.getElementById('chat-window');
+    const sendBtn = document.getElementById('send-btn');
+    const chatInput = document.getElementById('chat-input');
+    const messagesContainer = document.getElementById('chat-messages');
+    const pillsContainer = document.getElementById('quick-pills-container');
+
+    // 視窗開關
+    toggleBtn.addEventListener('click', () => {
+      chatWindow.classList.toggle('hidden');
+    });
+
+    closeBtn.addEventListener('click', () => {
+      chatWindow.classList.add('hidden');
+    });
+
+    // 產生快捷按鈕
+    quickActions.forEach(action => {
+      const pill = document.createElement('button');
+      pill.className = 'quick-pill';
+      pill.innerHTML = `<span>${action.icon}</span> ${action.label}`;
+      pill.addEventListener('click', () => {
+        handleUserMessage(action.label, action.response);
+      });
+      pillsContainer.appendChild(pill);
+    });
+
+    // 發送訊息處理
+    function appendMessage(text, sender = 'bot') {
+      const bubble = document.createElement('div');
+      bubble.className = `message-bubble ${sender}`;
+      bubble.textContent = text;
+      messagesContainer.appendChild(bubble);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function handleUserMessage(userText, customBotReply = null) {
+      if (!userText.trim()) return;
+      
+      appendMessage(userText, 'user');
+      chatInput.value = '';
+
+      setTimeout(() => {
+        if (customBotReply) {
+          appendMessage(customBotReply, 'bot');
+        } else {
+          // 一般輸入比對
+          const matched = quickActions.find(q => userText.includes(q.label) || q.label.includes(userText));
+          if (matched) {
+            appendMessage(matched.response, 'bot');
+          } else {
+            appendMessage("收到您的問題！若需要更進一步的資訊，請點選上方標籤或洽詢各處室櫃檯協助。", 'bot');
+          }
+        }
+      }, 400);
+    }
+
+    sendBtn.addEventListener('click', () => {
+      handleUserMessage(chatInput.value);
+    });
+
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        handleUserMessage(chatInput.value);
+      }
+    });
+  </script>
 </body>
 </html>
